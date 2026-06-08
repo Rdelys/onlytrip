@@ -49,6 +49,33 @@
             object-fit: contain;
         }
 
+        /* Menu de navigation */
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-menu li a {
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--dark);
+            text-decoration: none;
+            transition: color 0.2s;
+            padding: 8px 0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-menu li a:hover {
+            color: var(--blue);
+        }
+
+        /* Boutons */
         .btn-connexion {
             font-family: 'Nunito', sans-serif;
             font-size: 0.875rem;
@@ -78,161 +105,152 @@
         }
         .btn-inscription:hover { background: var(--blue-dk); }
 
-        /* ── HERO ── */
-        .hero {
-            padding: 4rem 0 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -100px; right: -120px;
-            width: 500px; height: 500px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 65%);
-            pointer-events: none;
-        }
-
-        .hero-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(59,130,246,0.08);
-            border: 1px solid rgba(59,130,246,0.2);
-            color: var(--blue-dk);
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 4px 14px;
-            border-radius: 100px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-        }
-        .hero-pill::before {
-            content: '';
-            display: inline-block;
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--blue);
-        }
-
-        .hero h1 {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 800;
-            line-height: 1.15;
-            letter-spacing: -0.02em;
-            color: var(--dark);
-            margin-bottom: 1rem;
-        }
-        .hero h1 .accent { color: var(--blue); }
-
-        .hero-sub {
-            font-size: 1rem;
-            font-weight: 400;
-            color: var(--muted);
-            line-height: 1.7;
-            max-width: 460px;
-            margin-bottom: 2rem;
-        }
-
-        /* ── SEARCH ── */
-        .search-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            padding: 8px 8px 8px 20px;
-            max-width: 520px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .search-wrap:focus-within {
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
-        }
-        .search-wrap .fa-location-dot { color: #9ca3af; }
-        .search-wrap input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
+        .btn-profile {
             font-family: 'Nunito', sans-serif;
             font-size: 0.875rem;
-            color: var(--dark);
-        }
-        .search-wrap input::placeholder { color: #9ca3af; }
-        .search-wrap .btn-search {
-            background: var(--blue);
-            color: #ffffff;
-            border: none;
-            border-radius: 100px;
-            padding: 8px 22px;
-            font-size: 0.8125rem;
-            font-weight: 700;
-            font-family: 'Nunito', sans-serif;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.2s;
-        }
-        .search-wrap .btn-search:hover { background: var(--blue-dk); }
-
-        /* ── CARDS ── */
-        .trip-card {
-            background: var(--surface) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: 16px !important;
-            overflow: hidden;
-            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-        }
-        .trip-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 32px rgba(59,130,246,0.1) !important;
-            border-color: rgba(59,130,246,0.3) !important;
-        }
-        .trip-card .card-img-top { height: 180px; object-fit: cover; }
-        .trip-card .card-body { padding: 1rem 1.25rem; background: var(--surface); }
-        .trip-card .card-label {
-            font-size: 0.6875rem;
-            font-weight: 700;
-            color: var(--blue);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 4px;
-        }
-        .trip-card .card-title {
-            font-size: 0.9375rem;
             font-weight: 600;
             color: var(--dark);
-            margin-bottom: 0.75rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 8px 22px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .trip-card .card-price {
+
+        .btn-profile:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .btn-deconnexion {
+            font-family: 'Nunito', sans-serif;
             font-size: 0.875rem;
-            font-weight: 700;
+            font-weight: 600;
+            color: #ef4444;
+            background: transparent;
+            border: 1px solid #fecaca;
+            border-radius: 100px;
+            padding: 8px 22px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-deconnexion:hover {
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        /* Dropdown menu */
+        .dropdown-menu-custom {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+            padding: 8px 0;
+            margin-top: 8px;
+        }
+
+        .dropdown-menu-custom .dropdown-item {
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.875rem;
+            padding: 10px 20px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .dropdown-menu-custom .dropdown-item:hover {
+            background: #f3f4f6;
+        }
+
+        .dropdown-menu-custom .dropdown-item i {
+            width: 20px;
+            margin-right: 10px;
             color: var(--muted);
         }
-        .trip-card .card-stars { color: #d1d5db; font-size: 0.75rem; }
-        .trip-card .card-stars .filled { color: var(--blue); }
+
+        @media (max-width: 992px) {
+            .nav-menu {
+                gap: 1rem;
+            }
+            .nav-menu li a {
+                font-size: 0.8125rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-wrap: wrap;
+            }
+            .nav-menu {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                margin-top: 12px;
+                padding-bottom: 8px;
+            }
+            body {
+                padding-top: 120px;
+            }
+        }
     </style>
 </head>
 <body>
 
 <nav class="navbar" id="mainNav">
     <div class="container d-flex align-items-center justify-content-between">
-
-        <a href="{{ url('/') }}">
+        
+        {{-- Logo --}}
+        <a href="#">
             <img src="{{ asset('logo.png') }}" alt="OnlyTrip" class="navbar-logo">
         </a>
 
+        {{-- Menu de navigation --}}
+        <ul class="nav-menu">
+            <li><a href="#" onclick="showPage('accueil')">Accueil</a></li>
+            <li><a href="#" onclick="showPage('locaux')">Nos Locaux</a></li>
+            <li><a href="#" onclick="showPage('services')">Services</a></li>
+        </ul>
+
+        {{-- Boutons selon authentification --}}
         <div class="d-flex align-items-center gap-2">
-            <button class="btn-connexion" data-bs-toggle="modal" data-bs-target="#loginModal">
-                Connexion
-            </button>
-            <button class="btn-inscription" data-bs-toggle="modal" data-bs-target="#registerModal">
-                Inscription
-            </button>
+            @auth
+                {{-- Utilisateur connecté --}}
+                <div class="dropdown">
+                    <button class="btn-profile dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-regular fa-user"></i> {{ Auth::user()->name ?? 'Mon compte' }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-custom dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="showPage('profil')">
+                                <i class="fa-regular fa-id-card"></i> Mon profil
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="showPage('reservations')">
+                                <i class="fa-regular fa-calendar-check"></i> Mes réservations
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" onclick="deconnexion()">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            @else
+                {{-- Utilisateur non connecté --}}
+                <button class="btn-connexion" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <i class="fa-regular fa-user"></i> Connexion
+                </button>
+                <button class="btn-inscription" data-bs-toggle="modal" data-bs-target="#registerModal">
+                    <i class="fa-regular fa-pen-to-square"></i> Inscription
+                </button>
+            @endauth
         </div>
 
     </div>
@@ -242,14 +260,46 @@
     @yield('content')
 </div>
 
+@include('layouts.footer') 
 @include('auth.modals')
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Navbar scroll effect
     const nav = document.getElementById('mainNav');
     window.addEventListener('scroll', () => {
-        nav.classList.toggle('scrolled', window.scrollY > 10);
+        if (nav) {
+            nav.classList.toggle('scrolled', window.scrollY > 10);
+        }
     });
+
+    // Fonctions de navigation sans route
+    function showPage(page) {
+        if(page === 'accueil') {
+            // Recharger la page d'accueil ou afficher via AJAX
+            location.reload();
+        } else if(page === 'locaux') {
+            alert('Page "Nos Locaux" - À venir');
+        } else if(page === 'services') {
+            alert('Page "Services" - À venir');
+        } else if(page === 'profil') {
+            alert('Page "Mon profil" - À venir');
+        } else if(page === 'reservations') {
+            alert('Page "Mes réservations" - À venir');
+        }
+    }
+
+    function deconnexion() {
+        if(confirm('Voulez-vous vraiment vous déconnecter ?')) {
+            // Formulaire de déconnexion
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '#';
+            form.innerHTML = '@csrf<input type="hidden" name="_method" value="POST">';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
 </script>
 </body>
 </html>

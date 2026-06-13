@@ -216,14 +216,28 @@
         </ul>
 
         {{-- Boutons selon authentification --}}
-        <div class="d-flex align-items-center gap-2">
+       <div class="d-flex align-items-center gap-2">
             @auth
+                @php
+                    $profil = Auth::user()->profil ?? 1; // 1 = voyageur par défaut
+                    $profilLabel = $profil == 1 ? 'Voyageur' : 'Local';
+                    $profilIcon  = $profil == 1 ? 'fa-plane-departure' : 'fa-house';
+
+                    $autreLabel = $profil == 1 ? 'Local' : 'Voyageur';
+                    $autreIcon  = $profil == 1 ? 'fa-house' : 'fa-plane-departure';
+                @endphp
                 {{-- Utilisateur connecté --}}
                 <div class="dropdown">
                     <button class="btn-profile dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa-regular fa-user"></i> {{ Auth::user()->name ?? 'Mon compte' }}
+                        <i class="fa-solid {{ $profilIcon }}"></i> {{ $profilLabel }}
                     </button>
                     <ul class="dropdown-menu dropdown-menu-custom dropdown-menu-end">
+                        <li>
+                            <span class="dropdown-item-text text-muted small px-3">
+                                {{ Auth::user()->mail }}
+                            </span>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item" href="#" onclick="showPage('profil')">
                                 <i class="fa-regular fa-id-card"></i> Mon profil
@@ -236,12 +250,23 @@
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
+                            <a class="dropdown-item" href="#" onclick="switchProfil()">
+                                <i class="fa-solid {{ $autreIcon }}"></i> Passer en mode {{ $autreLabel }}
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
                             <a class="dropdown-item text-danger" href="#" onclick="deconnexion()">
                                 <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion
                             </a>
                         </li>
                     </ul>
                 </div>
+
+                {{-- Formulaire caché pour le switch de profil --}}
+                <form id="switchProfilForm" method="POST" action="{{ route('profil.switch') }}" class="d-none">
+                    @csrf
+                </form>
             @else
                 {{-- Utilisateur non connecté --}}
                 <button class="btn-connexion" data-bs-toggle="modal" data-bs-target="#loginModal">
@@ -252,7 +277,6 @@
                 </button>
             @endauth
         </div>
-
     </div>
 </nav>
 
@@ -290,15 +314,18 @@
     }
 
     function deconnexion() {
-        if(confirm('Voulez-vous vraiment vous déconnecter ?')) {
-            // Formulaire de déconnexion
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '#';
-            form.innerHTML = '@csrf<input type="hidden" name="_method" value="POST">';
-            document.body.appendChild(form);
-            form.submit();
-        }
+    if(confirm('Voulez-vous vraiment vous déconnecter ?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ route('logout') }}";
+        form.innerHTML = '@csrf';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+    function switchProfil() {
+        document.getElementById('switchProfilForm').submit();
     }
 </script>
 </body>

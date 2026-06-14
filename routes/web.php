@@ -5,7 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\ProfileController;
-
+use App\Http\Controllers\Auth\GoogleController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,4 +21,10 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 //Profil
 Route::middleware('auth')->group(function () {
     Route::post('/profil/switch', [ProfileController::class, 'switch'])->name('profil.switch');
+    Route::post('/profil/choose', [ProfileController::class, 'choose'])->name('profil.choose');
 });
+
+//logingoogle
+
+Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');

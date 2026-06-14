@@ -45,6 +45,12 @@
                 </button>
             </form>
 
+            <div class="ot-divider"><span>ou continuer avec</span></div>
+
+            <a href="{{ route('google.redirect') }}" class="ot-btn-social ot-btn-social-full">
+                <i class="fa-brands fa-google"></i> Continuer avec Google
+            </a>
+
             <p class="ot-modal-footer-text mt-3">
                 Pas encore de compte ?
                 <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal">S'inscrire</a>
@@ -86,6 +92,12 @@
                         <div class="ot-role-desc">Je propose mes services aux voyageurs</div>
                     </button>
                 </div>
+
+                <div class="ot-divider"><span>ou continuer avec</span></div>
+
+                <a href="{{ route('google.redirect') }}" class="ot-btn-social ot-btn-social-full">
+                    <i class="fa-brands fa-google"></i> Continuer avec Google
+                </a>
             </div>
 
             {{-- ÉTAPE 2 : email (commun voyageur/local) --}}
@@ -162,6 +174,41 @@
                     <i class="fa-solid fa-circle-check me-2"></i> Vérifier
                 </button>
             </form>
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════════════════════════════════════
+     CHOIX DU PROFIL (1ère connexion Google)
+     -> backdrop static + pas de fermeture possible
+════════════════════════════════════════════ --}}
+<div class="modal fade" id="chooseProfileModal" tabindex="-1" aria-labelledby="chooseProfileLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width:480px; width:calc(100% - 2rem);">
+        <div class="modal-content ot-modal">
+
+            <div class="ot-modal-logo">
+                <img src="{{ asset('logo.png') }}" alt="OnlyTrip">
+            </div>
+
+            <h2 class="ot-modal-title" id="chooseProfileLabel">Bienvenue sur OnlyTrip !</h2>
+            <p class="ot-modal-sub">Pour terminer, dites-nous qui vous êtes</p>
+
+            <form method="POST" action="{{ route('profil.choose') }}">
+                @csrf
+                <div class="ot-role-grid">
+                    <button type="submit" name="profil" value="1" class="ot-role-card">
+                        <i class="fa-solid fa-plane-departure ot-role-icon"></i>
+                        <div class="ot-role-name">Voyageur</div>
+                        <div class="ot-role-desc">Je cherche des expériences locales authentiques</div>
+                    </button>
+                    <button type="submit" name="profil" value="0" class="ot-role-card">
+                        <i class="fa-solid fa-house ot-role-icon"></i>
+                        <div class="ot-role-name">Local</div>
+                        <div class="ot-role-desc">Je propose mes services aux voyageurs</div>
+                    </button>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>
@@ -265,6 +312,22 @@
 .ot-btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
 .ot-btn-primary:active { transform: translateY(0); }
 
+.ot-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 1.25rem 0;
+    color: #9ca3af;
+    font-size: 0.8125rem;
+}
+.ot-divider::before,
+.ot-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+}
+
 .ot-modal-footer-text {
     text-align: center;
     font-size: 0.8125rem;
@@ -277,6 +340,32 @@
     text-decoration: none;
 }
 .ot-modal-footer-text a:hover { text-decoration: underline; }
+
+/* Bouton social (Google / Apple) — utilisable sur <button> ou <a> */
+.ot-btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151 !important;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.ot-btn-social:hover { border-color: #9ca3af; background: #f9fafb; }
+.ot-btn-social .fa-google { color: #ea4335; }
+.ot-btn-social .fa-apple  { color: #000; }
+
+.ot-btn-social-full {
+    width: 100%;
+}
 
 .ot-role-grid {
     display: grid;
@@ -391,6 +480,7 @@ document.getElementById('registerModal').addEventListener('hidden.bs.modal', fun
 });
 
 // Ouverture automatique des modals selon la session/erreurs Laravel
+// (un seul bloc DOMContentLoaded — l'ancien doublon a été supprimé)
 document.addEventListener('DOMContentLoaded', function () {
     @if(session('otp_sent'))
         ['loginModal', 'registerModal'].forEach(function (id) {
@@ -399,6 +489,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (instance) instance.hide();
         });
         new bootstrap.Modal(document.getElementById('otpModal')).show();
+    @elseif(session('choose_profile'))
+        new bootstrap.Modal(document.getElementById('chooseProfileModal')).show();
     @elseif(session('open_modal'))
         new bootstrap.Modal(document.getElementById('{{ session('open_modal') }}')).show();
     @elseif($errors->has('otp_code'))

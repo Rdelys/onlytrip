@@ -13,7 +13,8 @@ class UserOnlytrap extends Authenticatable
     protected $table = 'user_onlytrap';
 
     protected $fillable = [
-        'mail', 'profil', 'otp_code', 'otp_expires_at', 'email_verified_at', 'password',
+        'mail', 'google_id', 'profil', 'profil_chosen',
+        'otp_code', 'otp_expires_at', 'email_verified_at', 'password',
     ];
 
     protected $hidden = ['password', 'remember_token', 'otp_code'];
@@ -22,6 +23,7 @@ class UserOnlytrap extends Authenticatable
         'email_verified_at' => 'datetime',
         'otp_expires_at'    => 'datetime',
         'profil'            => 'integer',
+        'profil_chosen'     => 'boolean',
     ];
 
     public function profilLabel(): string

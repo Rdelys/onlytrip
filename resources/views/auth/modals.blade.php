@@ -1,4 +1,21 @@
 {{-- ═══════════════════════════════════════════
+     ALERTES (erreurs / succès)
+════════════════════════════════════════════ --}}
+@if($errors->any())
+<div class="alert alert-danger position-fixed top-0 start-50 translate-middle-x mt-3 shadow" style="z-index:2000;">
+    @foreach($errors->all() as $error)
+        <div>{{ $error }}</div>
+    @endforeach
+</div>
+@endif
+
+@if(session('success'))
+<div class="alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3 shadow" style="z-index:2000;">
+    {{ session('success') }}
+</div>
+@endif
+
+{{-- ═══════════════════════════════════════════
      CONNEXION MODAL
 ════════════════════════════════════════════ --}}
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
@@ -14,29 +31,27 @@
             </div>
 
             <h2 class="ot-modal-title" id="loginModalLabel">Bon retour !</h2>
-            <p class="ot-modal-sub">Connectez-vous à votre compte OnlyTrip</p>
+            <p class="ot-modal-sub">Connectez-vous avec votre email, nous vous envoyons un code</p>
 
-            <div class="ot-field">
-                <label><i class="fa-solid fa-envelope me-1"></i> Adresse email</label>
-                <input type="email" placeholder="vous@exemple.com">
-            </div>
+            <form method="POST" action="{{ route('login.send') }}">
+                @csrf
+                <div class="ot-field">
+                    <label><i class="fa-solid fa-envelope me-1"></i> Adresse email</label>
+                    <input type="email" name="mail" placeholder="vous@exemple.com" required value="{{ old('mail') }}">
+                </div>
 
-            <button class="ot-btn-primary">
-                <i class="fa-solid fa-right-to-bracket me-2"></i> Continuer
-            </button>
+                <button type="submit" class="ot-btn-primary">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i> Recevoir le code
+                </button>
+            </form>
 
             <div class="ot-divider"><span>ou continuer avec</span></div>
 
-            <div class="ot-social-row">
-                <button class="ot-btn-social">
-                    <i class="fa-brands fa-google"></i> Google
-                </button>
-                <button class="ot-btn-social">
-                    <i class="fa-brands fa-apple"></i> Apple
-                </button>
-            </div>
+            <a href="{{ route('google.redirect') }}" class="ot-btn-social ot-btn-social-full">
+                <i class="fa-brands fa-google"></i> Continuer avec Google
+            </a>
 
-            <p class="ot-modal-footer-text">
+            <p class="ot-modal-footer-text mt-3">
                 Pas encore de compte ?
                 <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal">S'inscrire</a>
             </p>
@@ -66,85 +81,133 @@
                 <p class="ot-modal-sub">Vous êtes…</p>
 
                 <div class="ot-role-grid">
-                    <button class="ot-role-card" onclick="otShowStep('voyageur')">
+                    <button type="button" class="ot-role-card" onclick="otSelectRole(1)">
                         <i class="fa-solid fa-plane-departure ot-role-icon"></i>
                         <div class="ot-role-name">Voyageur</div>
                         <div class="ot-role-desc">Je cherche des expériences locales authentiques</div>
                     </button>
-                    <button class="ot-role-card" onclick="otShowStep('local')">
+                    <button type="button" class="ot-role-card" onclick="otSelectRole(0)">
                         <i class="fa-solid fa-house ot-role-icon"></i>
                         <div class="ot-role-name">Local</div>
                         <div class="ot-role-desc">Je propose mes services aux voyageurs</div>
                     </button>
                 </div>
+
+                <div class="ot-divider"><span>ou continuer avec</span></div>
+
+                <a href="{{ route('google.redirect') }}" class="ot-btn-social ot-btn-social-full">
+                    <i class="fa-brands fa-google"></i> Continuer avec Google
+                </a>
             </div>
 
-            {{-- ÉTAPE 2a : Voyageur --}}
-            <div id="reg-step-voyageur" style="display:none;">
-                <button class="ot-back-btn" onclick="otShowStep('role')">
+            {{-- ÉTAPE 2 : email (commun voyageur/local) --}}
+            <div id="reg-step-email" style="display:none;">
+                <button type="button" class="ot-back-btn" onclick="otShowStep('role')">
                     <i class="fa-solid fa-arrow-left me-1"></i> Retour
                 </button>
-                <div class="ot-role-badge voyageur">
+
+                <div class="ot-role-badge voyageur" id="reg-role-badge-voyageur">
                     <i class="fa-solid fa-plane-departure"></i> Voyageur
                 </div>
-                <h2 class="ot-modal-title">Créer mon compte</h2>
-                <p class="ot-modal-sub">Quelques infos pour commencer</p>
-
-                <div class="ot-field">
-                    <label><i class="fa-solid fa-user me-1"></i> Nom complet</label>
-                    <input type="text" placeholder="Jean Dupont">
-                </div>
-                <div class="ot-field">
-                    <label><i class="fa-solid fa-envelope me-1"></i> Adresse email</label>
-                    <input type="email" placeholder="vous@exemple.com">
-                </div>
-
-                <button class="ot-btn-primary">
-                    <i class="fa-solid fa-user-plus me-2"></i> Créer mon compte
-                </button>
-
-                <div class="ot-divider"><span>ou continuer avec</span></div>
-                <div class="ot-social-row">
-                    <button class="ot-btn-social"><i class="fa-brands fa-google"></i> Google</button>
-                    <button class="ot-btn-social"><i class="fa-brands fa-apple"></i> Apple</button>
-                </div>
-            </div>
-
-            {{-- ÉTAPE 2b : Local --}}
-            <div id="reg-step-local" style="display:none;">
-                <button class="ot-back-btn" onclick="otShowStep('role')">
-                    <i class="fa-solid fa-arrow-left me-1"></i> Retour
-                </button>
-                <div class="ot-role-badge local">
+                <div class="ot-role-badge local" id="reg-role-badge-local" style="display:none;">
                     <i class="fa-solid fa-house"></i> Local
                 </div>
+
                 <h2 class="ot-modal-title">Créer mon compte</h2>
-                <p class="ot-modal-sub">Partagez vos services avec le monde</p>
+                <p class="ot-modal-sub">Entrez votre email pour recevoir un code de vérification</p>
 
-                <div class="ot-field">
-                    <label><i class="fa-solid fa-user me-1"></i> Nom complet</label>
-                    <input type="text" placeholder="Marie Martin">
-                </div>
-                <div class="ot-field">
-                    <label><i class="fa-solid fa-envelope me-1"></i> Adresse email</label>
-                    <input type="email" placeholder="vous@exemple.com">
-                </div>
+                <form method="POST" action="{{ route('register.send') }}">
+                    @csrf
+                    <input type="hidden" name="profil" id="reg-profil-input" value="1">
 
-                <button class="ot-btn-primary">
-                    <i class="fa-solid fa-user-plus me-2"></i> Créer mon compte
-                </button>
+                    <div class="ot-field">
+                        <label><i class="fa-solid fa-envelope me-1"></i> Adresse email</label>
+                        <input type="email" name="mail" placeholder="vous@exemple.com" required value="{{ old('mail') }}">
+                    </div>
 
-                <div class="ot-divider"><span>ou continuer avec</span></div>
-                <div class="ot-social-row">
-                    <button class="ot-btn-social"><i class="fa-brands fa-google"></i> Google</button>
-                    <button class="ot-btn-social"><i class="fa-brands fa-apple"></i> Apple</button>
-                </div>
+                    <button type="submit" class="ot-btn-primary">
+                        <i class="fa-solid fa-user-plus me-2"></i> Recevoir le code
+                    </button>
+                </form>
             </div>
 
             <p class="ot-modal-footer-text">
                 Déjà un compte ?
                 <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Se connecter</a>
             </p>
+
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════════════════════════════════════
+     OTP MODAL (commun inscription / connexion)
+════════════════════════════════════════════ --}}
+<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width:420px; width:calc(100% - 2rem);">
+        <div class="modal-content ot-modal">
+
+            <button type="button" class="ot-modal-close" data-bs-dismiss="modal" aria-label="Fermer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="ot-modal-logo">
+                <img src="{{ asset('logo.png') }}" alt="OnlyTrip">
+            </div>
+
+            <h2 class="ot-modal-title" id="otpModalLabel">Vérification</h2>
+            <p class="ot-modal-sub">
+                Un code à 6 chiffres a été envoyé à<br>
+                <strong>{{ session('otp_email') }}</strong>
+            </p>
+
+            <form method="POST" action="{{ route('otp.verify') }}">
+                @csrf
+                <div class="ot-field">
+                    <label><i class="fa-solid fa-key me-1"></i> Code de vérification</label>
+                    <input type="text" name="otp_code" maxlength="6" inputmode="numeric"
+                           placeholder="------" required
+                           style="text-align:center; letter-spacing:10px; font-size:1.25rem; font-weight:700;">
+                </div>
+
+                <button type="submit" class="ot-btn-primary">
+                    <i class="fa-solid fa-circle-check me-2"></i> Vérifier
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════════════════════════════════════
+     CHOIX DU PROFIL (1ère connexion Google)
+     -> backdrop static + pas de fermeture possible
+════════════════════════════════════════════ --}}
+<div class="modal fade" id="chooseProfileModal" tabindex="-1" aria-labelledby="chooseProfileLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width:480px; width:calc(100% - 2rem);">
+        <div class="modal-content ot-modal">
+
+            <div class="ot-modal-logo">
+                <img src="{{ asset('logo.png') }}" alt="OnlyTrip">
+            </div>
+
+            <h2 class="ot-modal-title" id="chooseProfileLabel">Bienvenue sur OnlyTrip !</h2>
+            <p class="ot-modal-sub">Pour terminer, dites-nous qui vous êtes</p>
+
+            <form method="POST" action="{{ route('profil.choose') }}">
+                @csrf
+                <div class="ot-role-grid">
+                    <button type="submit" name="profil" value="1" class="ot-role-card">
+                        <i class="fa-solid fa-plane-departure ot-role-icon"></i>
+                        <div class="ot-role-name">Voyageur</div>
+                        <div class="ot-role-desc">Je cherche des expériences locales authentiques</div>
+                    </button>
+                    <button type="submit" name="profil" value="0" class="ot-role-card">
+                        <i class="fa-solid fa-house ot-role-icon"></i>
+                        <div class="ot-role-name">Local</div>
+                        <div class="ot-role-desc">Je propose mes services aux voyageurs</div>
+                    </button>
+                </div>
+            </form>
 
         </div>
     </div>
@@ -265,16 +328,20 @@
     background: #e5e7eb;
 }
 
-.ot-social-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 1.25rem;
+.ot-modal-footer-text {
+    text-align: center;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin: 1rem 0 0;
 }
-@media (max-width: 380px) {
-    .ot-social-row { grid-template-columns: 1fr; }
+.ot-modal-footer-text a {
+    color: #3b82f6;
+    font-weight: 700;
+    text-decoration: none;
 }
+.ot-modal-footer-text a:hover { text-decoration: underline; }
 
+/* Bouton social (Google / Apple) — utilisable sur <button> ou <a> */
 .ot-btn-social {
     display: flex;
     align-items: center;
@@ -287,7 +354,8 @@
     font-family: 'Nunito', sans-serif;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #374151;
+    color: #374151 !important;
+    text-decoration: none !important;
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
 }
@@ -295,18 +363,9 @@
 .ot-btn-social .fa-google { color: #ea4335; }
 .ot-btn-social .fa-apple  { color: #000; }
 
-.ot-modal-footer-text {
-    text-align: center;
-    font-size: 0.8125rem;
-    color: #6b7280;
-    margin: 0;
+.ot-btn-social-full {
+    width: 100%;
 }
-.ot-modal-footer-text a {
-    color: #3b82f6;
-    font-weight: 700;
-    text-decoration: none;
-}
-.ot-modal-footer-text a:hover { text-decoration: underline; }
 
 .ot-role-grid {
     display: grid;
@@ -388,8 +447,9 @@
 </style>
 
 <script>
+// Navigation entre les étapes de l'inscription
 function otShowStep(step) {
-    ['role','voyageur','local'].forEach(s => {
+    ['role','email'].forEach(s => {
         const el = document.getElementById('reg-step-' + s);
         if (el) el.style.display = 'none';
     });
@@ -397,7 +457,44 @@ function otShowStep(step) {
     if (target) target.style.display = 'block';
 }
 
+// Choix du rôle : 1 = voyageur, 0 = local
+function otSelectRole(profil) {
+    document.getElementById('reg-profil-input').value = profil;
+
+    const badgeVoyageur = document.getElementById('reg-role-badge-voyageur');
+    const badgeLocal    = document.getElementById('reg-role-badge-local');
+
+    if (profil === 1) {
+        badgeVoyageur.style.display = 'inline-flex';
+        badgeLocal.style.display = 'none';
+    } else {
+        badgeVoyageur.style.display = 'none';
+        badgeLocal.style.display = 'inline-flex';
+    }
+
+    otShowStep('email');
+}
+
 document.getElementById('registerModal').addEventListener('hidden.bs.modal', function () {
     otShowStep('role');
+});
+
+// Ouverture automatique des modals selon la session/erreurs Laravel
+// (un seul bloc DOMContentLoaded — l'ancien doublon a été supprimé)
+document.addEventListener('DOMContentLoaded', function () {
+    @if(session('otp_sent'))
+        ['loginModal', 'registerModal'].forEach(function (id) {
+            var el = document.getElementById(id);
+            var instance = bootstrap.Modal.getInstance(el);
+            if (instance) instance.hide();
+        });
+        new bootstrap.Modal(document.getElementById('otpModal')).show();
+    @elseif(session('choose_profile'))
+        new bootstrap.Modal(document.getElementById('chooseProfileModal')).show();
+    @elseif(session('open_modal'))
+        new bootstrap.Modal(document.getElementById('{{ session('open_modal') }}')).show();
+    @elseif($errors->has('otp_code'))
+        new bootstrap.Modal(document.getElementById('otpModal')).show();
+    @endif
 });
 </script>

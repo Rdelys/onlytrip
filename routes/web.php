@@ -20,9 +20,15 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 //Profil
 Route::middleware('auth')->group(function () {
-    Route::post('/profil/switch', [ProfileController::class, 'switch'])->name('profil.switch');
-    Route::post('/profil/choose', [ProfileController::class, 'choose'])->name('profil.choose');
+    Route::get('/profil',              [ProfileController::class, 'show'])->name('profile.show');
+    Route::post('/profil',             [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profil/detect-genre',[ProfileController::class, 'detectGender'])->name('profile.detect-gender');
+ 
+    // Already existing
+    Route::post('/profil/switch',      [ProfileController::class, 'switch'])->name('profil.switch');
+    Route::post('/profil/choose',      [ProfileController::class, 'choose'])->name('profil.choose');
 });
+ 
 
 //logingoogle
 

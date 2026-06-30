@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -43,9 +44,6 @@ class ProfileController extends Controller
     }
 
     // ── Update profile ───────────────────────────────────────────────────────
-    // NOTE: 'sexe' n'est jamais accepté ici. Il est défini uniquement par
-    // detectGender() ci-dessous, pour empêcher toute usurpation/déclaration
-    // manuelle du sexe.
     public function update(Request $request)
     {
         $user = Auth::user();
@@ -67,7 +65,6 @@ class ProfileController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Handle photo upload
         if ($request->hasFile('photo_profil')) {
             if ($user->photo_profil) {
                 Storage::disk('public')->delete($user->photo_profil);
@@ -81,32 +78,50 @@ class ProfileController extends Controller
         $user->fill($validated);
         $user->save();
 
-        // Auto-update status based on completeness
         $user->status = $user->isProfileComplete() ? 'actif' : 'inactif';
         $user->save();
 
         return back()->with('success', 'Profil mis à jour avec succès !');
     }
 
-    // ── Face gender detection (server-side proxy to avoid CORS) ──────────────
-    // Seul point d'entrée qui peut écrire la colonne `sexe`. Le résultat
-    // DeepFace est enregistré directement en base — l'utilisateur ne peut
-    // pas le modifier manuellement, ce qui empêche l'usurpation de sexe.
+    // ── Face gender detection — caméra en direct uniquement ──────────────────
     public function detectGender(Request $request)
     {
-        $request->validate(['image' => 'required|image|max:2048']);
+        $request->validate(['image' => 'required|image|max:3072']);
 
         $user = Auth::user();
         $imageData = base64_encode(file_get_contents($request->file('image')->path()));
 
+        $deepfaceUrl = config('services.deepface.url', 'http://127.0.0.1:8001/analyze');
+
         try {
-            $response = Http::timeout(15)->post(
-                config('services.deepface.url', 'http://localhost:8001/analyze'),
-                ['image_b64' => $imageData]
-            );
+            $response = Http::timeout(20)->post($deepfaceUrl, [
+                'image_b64' => $imageData,
+            ]);
+
+            // ── LOG TEMPORAIRE DE DEBUG ──────────────────────────────────────
+            // À retirer une fois le problème identifié. Regardez
+            // storage/logs/laravel.log après chaque tentative.
+            Log::info('DeepFace response', [
+                'url'              => $deepfaceUrl,
+                'http_status'      => $response->status(),
+                'successful'       => $response->successful(),
+                'body'             => $response->body(),
+            ]);
+            // ───────────────────────────────────────────────────────────────
 
             if ($response->successful()) {
-                $gender = strtolower($response->json('dominant_gender') ?? '');
+                $json = $response->json();
+
+                // Le microservice peut retourner une erreur interne avec un 200
+                if (isset($json['error'])) {
+                    return response()->json([
+                        'sexe'  => null,
+                        'error' => 'Détection échouée côté serveur : ' . $json['error'],
+                    ]);
+                }
+
+                $gender = strtolower($json['dominant_gender'] ?? '');
                 $map = ['man' => 'homme', 'woman' => 'femme'];
                 $sexe = $map[$gender] ?? null;
 
@@ -117,14 +132,30 @@ class ProfileController extends Controller
 
                     return response()->json(['sexe' => $sexe]);
                 }
-            }
-        } catch (\Throwable $e) {
-            // Service indisponible
-        }
 
-        return response()->json([
-            'sexe'  => null,
-            'error' => 'Détection impossible. Réessayez avec une photo de visage plus nette.',
-        ], 200);
+                // Réponse 200 mais pas de genre exploitable
+                return response()->json([
+                    'sexe'  => null,
+                    'error' => 'Aucun visage net détecté sur l\'image (réponse: ' . json_encode($json) . ').',
+                ]);
+            }
+
+            // Le service DeepFace a répondu avec un code d'erreur HTTP
+            return response()->json([
+                'sexe'  => null,
+                'error' => 'Service de vérification a renvoyé une erreur HTTP ' . $response->status(),
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('DeepFace connection failed', [
+                'url'     => $deepfaceUrl,
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'sexe'  => null,
+                'error' => 'Connexion au service de vérification impossible : ' . $e->getMessage(),
+            ]);
+        }
     }
 }

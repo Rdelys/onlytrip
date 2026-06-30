@@ -1,13 +1,13 @@
 """
 deepface_api.py  –  OnlyTrip gender detection microservice
-Run: pip install deepface fastapi uvicorn python-multipart
+Run: pip install deepface fastapi uvicorn python-multipart tf-keras
 Then: uvicorn deepface_api:app --host 0.0.0.0 --port 8001
 """
 
 import base64
-import io
 import os
 import tempfile
+import traceback
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,12 +31,20 @@ class ImagePayload(BaseModel):
 async def analyze(payload: ImagePayload):
     """
     Accepts a base64 image and returns the dominant detected gender.
-    Response: { "dominant_gender": "Man" | "Woman", "confidence": float }
+    Success response : { "dominant_gender": "Man" | "Woman", "confidence": float }
+    Failure response  : { "dominant_gender": null, "error": "<reason>" }
     """
+    tmp_path = None
     try:
-        from deepface import DeepFace  # imported lazily so startup is fast when unused
+        from deepface import DeepFace
 
-        img_bytes = base64.b64decode(payload.image_b64)
+        try:
+            img_bytes = base64.b64decode(payload.image_b64)
+        except Exception as exc:
+            return {"dominant_gender": None, "error": f"Image base64 invalide: {exc}"}
+
+        if len(img_bytes) < 100:
+            return {"dominant_gender": None, "error": "Image vide ou trop petite après décodage."}
 
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
             tmp.write(img_bytes)
@@ -46,24 +54,53 @@ async def analyze(payload: ImagePayload):
             result = DeepFace.analyze(
                 img_path=tmp_path,
                 actions=["gender"],
-                enforce_detection=False,    # don't crash if face is at an angle
+                enforce_detection=True,
                 silent=True,
             )
+        except ValueError:
+            return {
+                "dominant_gender": None,
+                "error": "Aucun visage détecté dans l'image. Rapprochez-vous de la caméra, "
+                         "assurez un bon éclairage et regardez l'objectif.",
+            }
 
-            if isinstance(result, list):
-                result = result[0]
+        if isinstance(result, list):
+            if len(result) == 0:
+                return {"dominant_gender": None, "error": "Aucun visage trouvé (liste vide)."}
+            result = result[0]
 
-            gender_dict = result.get("gender", {})
-            dominant = max(gender_dict, key=gender_dict.get)  # "Man" or "Woman"
-            confidence = gender_dict.get(dominant, 0)
+        gender_dict = result.get("gender")
 
-            return {"dominant_gender": dominant, "confidence": round(confidence, 2)}
+        if not gender_dict or not isinstance(gender_dict, dict) or len(gender_dict) == 0:
+            return {
+                "dominant_gender": None,
+                "error": "Réponse DeepFace inattendue, pas de scores de genre disponibles.",
+            }
 
-        finally:
-            os.unlink(tmp_path)
+        # ── Conversion stricte vers types Python natifs ──────────────────
+        # DeepFace/numpy renvoie souvent des numpy.float32 et numpy.str_,
+        # que FastAPI/Pydantic ne sait pas sérialiser directement en JSON.
+        # On force explicitement str() et float() sur chaque valeur.
+        gender_dict_native = {str(k): float(v) for k, v in gender_dict.items()}
+
+        dominant_raw = max(gender_dict_native, key=gender_dict_native.get)
+        dominant = str(dominant_raw)
+        confidence = float(gender_dict_native[dominant_raw])
+
+        return {
+            "dominant_gender": dominant,
+            "confidence": round(confidence, 2),
+        }
 
     except Exception as exc:
-        return {"dominant_gender": None, "error": str(exc)}
+        return {
+            "dominant_gender": None,
+            "error": f"Erreur interne: {exc}",
+            "trace": traceback.format_exc()[-1500:],
+        }
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
 
 
 @app.get("/health")

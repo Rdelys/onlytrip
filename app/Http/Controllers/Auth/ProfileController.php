@@ -7,11 +7,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    // ── Profile switcher ────────────────────────────────────────────────────
     public function switch(Request $request)
     {
         $user = Auth::user();
@@ -35,17 +35,12 @@ class ProfileController extends Controller
         return back()->with('success', "Bienvenue ! Vous êtes en mode {$label}.");
     }
 
-    // ── Show profile page ────────────────────────────────────────────────────
     public function show()
     {
         $user = Auth::user();
         return view('profile.show', compact('user'));
     }
 
-    // ── Update profile ───────────────────────────────────────────────────────
-    // NOTE: 'sexe' n'est jamais accepté ici. Il est défini uniquement par
-    // detectGender() ci-dessous, pour empêcher toute usurpation/déclaration
-    // manuelle du sexe.
     public function update(Request $request)
     {
         $user = Auth::user();
@@ -67,7 +62,6 @@ class ProfileController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Handle photo upload
         if ($request->hasFile('photo_profil')) {
             if ($user->photo_profil) {
                 Storage::disk('public')->delete($user->photo_profil);
@@ -81,32 +75,58 @@ class ProfileController extends Controller
         $user->fill($validated);
         $user->save();
 
-        // Auto-update status based on completeness
         $user->status = $user->isProfileComplete() ? 'actif' : 'inactif';
         $user->save();
 
         return back()->with('success', 'Profil mis à jour avec succès !');
     }
 
-    // ── Face gender detection (server-side proxy to avoid CORS) ──────────────
-    // Seul point d'entrée qui peut écrire la colonne `sexe`. Le résultat
-    // DeepFace est enregistré directement en base — l'utilisateur ne peut
-    // pas le modifier manuellement, ce qui empêche l'usurpation de sexe.
     public function detectGender(Request $request)
     {
-        $request->validate(['image' => 'required|image|max:2048']);
+        $request->validate(['image' => 'required|image|max:3072']);
 
         $user = Auth::user();
-        $imageData = base64_encode(file_get_contents($request->file('image')->path()));
+        $imageFile = $request->file('image');
+
+        // ── DEBUG TEMPORAIRE ──────────────────────────────────────────────
+        // Sauvegarde l'image reçue de la webcam pour inspection visuelle.
+        // À RETIRER une fois le diagnostic terminé (fichier accessible
+        // publiquement sinon, ce qui n'est pas souhaitable en prod).
+        $debugPath = storage_path('app/public/debug_capture_' . time() . '.jpg');
+        copy($imageFile->getRealPath(), $debugPath);
+        Log::info('Capture webcam sauvegardée pour debug', [
+            'path'      => $debugPath,
+            'size_kb'   => round(filesize($debugPath) / 1024, 1),
+            'mime'      => $imageFile->getMimeType(),
+        ]);
+        // ────────────────────────────────────────────────────────────────
+
+        $imageData = base64_encode(file_get_contents($imageFile->path()));
 
         try {
-            $response = Http::timeout(15)->post(
-                config('services.deepface.url', 'http://localhost:8001/analyze'),
+            $response = Http::timeout(20)->post(
+                config('services.deepface.url', 'http://127.0.0.1:8001/analyze'),
                 ['image_b64' => $imageData]
             );
 
+            Log::info('DeepFace response', [
+                'url'         => config('services.deepface.url'),
+                'http_status' => $response->status(),
+                'successful'  => $response->successful(),
+                'body'        => $response->body(),
+            ]);
+
             if ($response->successful()) {
-                $gender = strtolower($response->json('dominant_gender') ?? '');
+                $json = $response->json();
+
+                if (isset($json['error'])) {
+                    return response()->json([
+                        'sexe'  => null,
+                        'error' => $json['error'],
+                    ]);
+                }
+
+                $gender = strtolower($json['dominant_gender'] ?? '');
                 $map = ['man' => 'homme', 'woman' => 'femme'];
                 $sexe = $map[$gender] ?? null;
 
@@ -117,14 +137,25 @@ class ProfileController extends Controller
 
                     return response()->json(['sexe' => $sexe]);
                 }
-            }
-        } catch (\Throwable $e) {
-            // Service indisponible
-        }
 
-        return response()->json([
-            'sexe'  => null,
-            'error' => 'Détection impossible. Réessayez avec une photo de visage plus nette.',
-        ], 200);
+                return response()->json([
+                    'sexe'  => null,
+                    'error' => 'Aucun visage net détecté.',
+                ]);
+            }
+
+            return response()->json([
+                'sexe'  => null,
+                'error' => 'Service de vérification a renvoyé une erreur HTTP ' . $response->status(),
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('DeepFace connection failed', ['message' => $e->getMessage()]);
+
+            return response()->json([
+                'sexe'  => null,
+                'error' => 'Connexion au service de vérification impossible.',
+            ]);
+        }
     }
 }

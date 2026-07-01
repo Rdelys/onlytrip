@@ -25,3 +25,9 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Python / DeepFace
+deepface_env/
+__pycache__
+*.pyc
+*.pyo
+.deepface/

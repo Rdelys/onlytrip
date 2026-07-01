@@ -41,4 +41,8 @@ return [
         'redirect'      => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'deepface' => [
+        'url' => env('DEEPFACE_URL', 'http://localhost:8001/analyze'),
+    ],
+
 ];

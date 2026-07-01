@@ -147,11 +147,7 @@
 .btn-detect:hover { opacity: .88; }
 .btn-detect:disabled { opacity: .55; cursor: not-allowed; }
 
-/* ── Interest chips ──────────────────────────────────────────────────────
-   États : repos / hover / sélectionné / hover-sur-sélectionné / focus clavier
-   On utilise une transition sur tous les états pour que le hover reste
-   visible et fluide même après sélection ou désélection.
-─────────────────────────────────────────────────────────────────────────*/
+/* ── Interest chips ── */
 .interests-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
 
 .interest-chip {
@@ -183,25 +179,18 @@
     text-align: center;
     flex-shrink: 0;
 }
-
-/* Repos -> hover : passe en contour bleu */
 .interest-chip:hover {
     border-color: var(--blue);
     color: var(--blue);
     background: #eff6ff;
 }
 .interest-chip:hover i { color: var(--blue); }
-
-/* Sélectionné : fond bleu plein */
 .interest-chip.selected {
     background: var(--blue);
     border-color: var(--blue);
     color: #fff;
 }
 .interest-chip.selected i { color: #fff; }
-
-/* Sélectionné + survolé : on assombrit légèrement pour garder un retour
-   visuel clair, sans jamais redevenir blanc/transparent comme l'état repos */
 .interest-chip.selected:hover {
     background: var(--blue-dk);
     border-color: var(--blue-dk);
@@ -210,15 +199,10 @@
     box-shadow: 0 4px 10px rgba(29,78,216,.25);
 }
 .interest-chip.selected:hover i { color: #fff; }
-
-/* Focus clavier (accessibilité) */
 .interest-chip:has(input:focus-visible) {
     outline: 2px solid var(--blue);
     outline-offset: 2px;
 }
-
-/* Petite coche qui n'apparaît que sur les chips sélectionnés,
-   pour confirmer visuellement l'état même sans hover */
 .interest-chip .check-icon { display: none; font-size: 0.75rem; }
 .interest-chip.selected .check-icon { display: inline-block; }
 .interest-chip.selected .main-icon { display: none; }
@@ -230,6 +214,7 @@
 }
 .btn-save:hover { background: var(--blue-dk); }
 
+/* ── Camera modal: réutilisée pour photo de profil ET vérification sexe ── */
 .camera-modal-backdrop {
     display: none; position: fixed; inset: 0;
     background: rgba(10,10,15,.65); z-index: 2000;
@@ -239,6 +224,24 @@
 .camera-modal { background: #fff; border-radius: 24px; padding: 28px; width: 420px; max-width: 96vw; text-align: center; }
 .camera-modal video { width: 100%; border-radius: 16px; margin: 16px 0; background: #000; }
 .camera-modal canvas { display: none; }
+
+/* Overlay d'analyse pendant le traitement DeepFace */
+.camera-analyzing {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    background: #eef2ff;
+    border-radius: 14px;
+    color: #4338ca;
+    font-weight: 700;
+    font-size: 0.875rem;
+    margin-top: 10px;
+}
+.camera-analyzing.active { display: flex; }
+.camera-analyzing i { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 .alert-profile { border-radius: 14px; padding: 14px 20px; font-size: 0.875rem; font-weight: 600; margin-bottom: 20px; }
 .alert-success { background:#d1fae5; color:#065f46; border:1px solid #6ee7b7; }
@@ -255,8 +258,6 @@
 @section('content')
 
 @php
-    // Icônes Font Awesome au lieu d'emojis, pour rester cohérent
-    // avec le reste de l'interface (navbar, boutons, etc.)
     $interests = [
         ['label'=>'Aventure / Découverte','icon'=>'fa-mountain-sun'],
         ['label'=>'Culture',              'icon'=>'fa-landmark'],
@@ -276,7 +277,6 @@
 
     $sexeLabels = ['homme' => 'Homme', 'femme' => 'Femme', 'autre' => 'Autre / Non déterminé'];
 
-    // Completion score
     $fields = ['nom','prenom','pseudo','date_naissance','sexe','telephone','photo_profil','centres_interet'];
     if ($isLocal) $fields[] = 'bio';
     $filled = 0;
@@ -349,19 +349,16 @@
                 {{ ucfirst($user->status) }}
             </span>
 
+            {{-- Photo de profil : import OU caméra, libre choix --}}
             <div class="photo-actions">
                 <label class="btn-photo" for="photoInput">
                     <i class="fa-solid fa-upload"></i> Importer
                 </label>
-                <button type="button" class="btn-photo" onclick="openCamera()">
+                <button type="button" class="btn-photo" onclick="openCamera('avatar')">
                     <i class="fa-solid fa-camera"></i> Caméra
                 </button>
             </div>
             <input type="file" id="photoInput" name="photo_profil" accept="image/*" style="display:none">
-            <p class="detect-hint">
-                <i class="fa-solid fa-circle-info"></i>
-                <span>La photo sert aussi à déterminer votre sexe automatiquement (sécurité anti-usurpation).</span>
-            </p>
 
             <div style="text-align:center;margin-top:8px;">
                 <span style="font-size:.875rem;font-weight:700;color:var(--blue);">
@@ -431,13 +428,15 @@
                 </div>
             </div>
 
-            {{-- Sexe : lecture seule, déterminé uniquement par DeepFace --}}
+            {{-- Sexe : lecture seule, déterminé uniquement par caméra en direct + DeepFace.
+                 Aucune option d'import de fichier ici — empêche d'utiliser une photo
+                 d'une autre personne pour usurper le sexe. --}}
             <div class="field-group" style="align-items:end;">
                 <div>
                     <label class="form-label">
                         Sexe <i class="fa-solid fa-lock" style="font-size:.6875rem;color:var(--muted);" title="Déterminé automatiquement"></i>
                     </label>
-                    <div class="sexe-readonly {{ !$user->sexe ? 'empty' : '' }}">
+                    <div class="sexe-readonly {{ !$user->sexe ? 'empty' : '' }}" id="sexeBox">
                         @if($user->sexe)
                             <i class="fa-solid fa-circle-check" style="color:#10b981;"></i>
                             {{ $sexeLabels[$user->sexe] ?? ucfirst($user->sexe) }}
@@ -449,16 +448,16 @@
                     </div>
                 </div>
                 <div>
-                    <button type="button" class="btn-detect" id="detectBtn" onclick="detectGender()">
-                        <i class="fa-solid fa-face-smile-wink"></i>
-                        <span id="detectLabel">{{ $user->sexe ? 'Re-vérifier' : 'Détecter automatiquement' }}</span>
+                    <button type="button" class="btn-detect" id="detectBtn" onclick="openCamera('verify')">
+                        <i class="fa-solid fa-camera-retro"></i>
+                        <span id="detectLabel">{{ $user->sexe ? 'Re-vérifier en direct' : 'Vérifier via caméra' }}</span>
                     </button>
                     <p id="detectResult" style="font-size:.75rem;color:var(--muted);margin-top:6px;display:none;"></p>
                 </div>
             </div>
             <p class="detect-hint">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span>Pour la sécurité de la communauté, le sexe est déterminé automatiquement par reconnaissance faciale à partir de votre photo de profil et ne peut pas être saisi manuellement.</span>
+                <span>Pour la sécurité de la communauté, le sexe est déterminé uniquement via une capture caméra en direct — aucune photo importée n'est acceptée, afin d'éviter toute usurpation.</span>
             </p>
         </div>
 
@@ -512,15 +511,24 @@
 </div>
 </form>
 
-{{-- ── CAMERA MODAL ── --}}
+{{-- ── CAMERA MODAL (réutilisée : avatar OU vérification sexe) ── --}}
 <div class="camera-modal-backdrop" id="cameraBackdrop">
     <div class="camera-modal">
-        <h5 style="font-weight:800;margin-bottom:0;"><i class="fa-solid fa-camera-retro"></i> Prendre une photo</h5>
-        <p style="font-size:.8125rem;color:var(--muted);margin-top:4px;">Centrez votre visage dans le cadre</p>
+        <h5 style="font-weight:800;margin-bottom:0;" id="cameraTitle">
+            <i class="fa-solid fa-camera-retro"></i> Prendre une photo
+        </h5>
+        <p style="font-size:.8125rem;color:var(--muted);margin-top:4px;" id="cameraSubtitle">
+            Centrez votre visage dans le cadre
+        </p>
         <video id="cameraVideo" autoplay playsinline></video>
         <canvas id="cameraCanvas"></canvas>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-            <button type="button" class="btn-save" onclick="capturePhoto()">
+
+        <div class="camera-analyzing" id="cameraAnalyzing">
+            <i class="fa-solid fa-spinner"></i> Analyse en cours…
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;" id="cameraActions">
+            <button type="button" class="btn-save" onclick="capturePhoto()" id="captureBtn">
                 <i class="fa-solid fa-camera"></i> Capturer
             </button>
             <button type="button" class="btn-photo" onclick="closeCamera()" style="padding:10px 22px;">
@@ -533,14 +541,8 @@
 
 @push('scripts')
 <script>
-// ── Interest chips toggle ────────────────────────────────────────────────
-// Le clic bascule la classe "selected" ; le checkbox interne suit l'état
-// du label (comportement natif <label><input></label>), donc pas besoin
-// de manipuler manuellement input.checked ici.
 document.querySelectorAll('.interest-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-        // Laisse le navigateur basculer le checkbox nativement, puis on
-        // synchronise la classe visuelle juste après sur le micro-tick suivant.
         requestAnimationFrame(() => {
             const input = chip.querySelector('input[type="checkbox"]');
             chip.classList.toggle('selected', input.checked);
@@ -571,12 +573,35 @@ function setAvatarPreview(src) {
     if (placeholder) placeholder.style.display = 'none';
 }
 
+// ── Caméra : deux modes ──────────────────────────────────────────────────
+// 'avatar' : capture utilisée comme photo de profil (injectée dans #photoInput)
+// 'verify' : capture envoyée directement à DeepFace, jamais stockée comme avatar
 let stream = null;
+let cameraMode = 'avatar';
 
-async function openCamera() {
+async function openCamera(mode = 'avatar') {
+    cameraMode = mode;
+
+    const title    = document.getElementById('cameraTitle');
+    const subtitle = document.getElementById('cameraSubtitle');
+    const actions  = document.getElementById('cameraActions');
+    const analyzing= document.getElementById('cameraAnalyzing');
+
+    analyzing.classList.remove('active');
+    actions.style.display = 'flex';
+
+    if (mode === 'verify') {
+        title.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Vérification d\'identité';
+        subtitle.textContent = 'Regardez la caméra, visage bien visible et éclairé';
+    } else {
+        title.innerHTML = '<i class="fa-solid fa-camera-retro"></i> Prendre une photo';
+        subtitle.textContent = 'Centrez votre visage dans le cadre';
+    }
+
     try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
         document.getElementById('cameraVideo').srcObject = stream;
+        document.getElementById('cameraVideo').style.display = 'block';
         document.getElementById('cameraBackdrop').classList.add('open');
     } catch(e) {
         alert('Impossible d\'accéder à la caméra. Vérifiez les permissions de votre navigateur.');
@@ -586,6 +611,9 @@ async function openCamera() {
 function closeCamera() {
     if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
     document.getElementById('cameraBackdrop').classList.remove('open');
+    document.getElementById('cameraAnalyzing').classList.remove('active');
+    document.getElementById('cameraActions').style.display = 'flex';
+    document.getElementById('cameraVideo').style.display = 'block';
 }
 
 function capturePhoto() {
@@ -595,36 +623,42 @@ function capturePhoto() {
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
 
-    canvas.toBlob(blob => {
-        setAvatarPreview(canvas.toDataURL('image/jpeg'));
-        const file = new File([blob], 'camera_photo.jpg', { type: 'image/jpeg' });
-        const dt   = new DataTransfer();
-        dt.items.add(file);
-        document.getElementById('photoInput').files = dt.files;
-        closeCamera();
-    }, 'image/jpeg', .92);
-}
-
-// ── Détection automatique du sexe (DeepFace) ───────────────────────────────
-async function detectGender() {
-    const input = document.getElementById('photoInput');
-
-    if (!input.files || !input.files[0]) {
-        alert('Importez ou prenez d\'abord une photo de profil, puis relancez la détection.');
+    if (cameraMode === 'avatar') {
+        canvas.toBlob(blob => {
+            setAvatarPreview(canvas.toDataURL('image/jpeg'));
+            const file = new File([blob], 'camera_photo.jpg', { type: 'image/jpeg' });
+            const dt   = new DataTransfer();
+            dt.items.add(file);
+            document.getElementById('photoInput').files = dt.files;
+            closeCamera();
+        }, 'image/jpeg', .92);
         return;
     }
 
-    const btn    = document.getElementById('detectBtn');
-    const label  = document.getElementById('detectLabel');
-    const result = document.getElementById('detectResult');
-    const sexeBox = document.querySelector('.sexe-readonly');
+    // mode 'verify' : on envoie directement à DeepFace, sans rien stocker
+    canvas.toBlob(blob => sendForGenderVerification(blob), 'image/jpeg', .92);
+}
 
-    btn.disabled = true;
-    label.textContent = 'Analyse en cours…';
+// ── Vérification du sexe : capture caméra → DeepFace directement ─────────
+async function sendForGenderVerification(blob) {
+    const video     = document.getElementById('cameraVideo');
+    const actions   = document.getElementById('cameraActions');
+    const analyzing = document.getElementById('cameraAnalyzing');
+    const detectBtn = document.getElementById('detectBtn');
+    const label     = document.getElementById('detectLabel');
+    const result    = document.getElementById('detectResult');
+    const sexeBox   = document.getElementById('sexeBox');
+
+    // Affiche l'état "analyse en cours" dans la modal
+    video.style.display = 'none';
+    actions.style.display = 'none';
+    analyzing.classList.add('active');
+
+    detectBtn.disabled = true;
     result.style.display = 'none';
 
     const fd = new FormData();
-    fd.append('image', input.files[0]);
+    fd.append('image', blob, 'verification.jpg');
     fd.append('_token', '{{ csrf_token() }}');
 
     try {
@@ -635,21 +669,20 @@ async function detectGender() {
             const map = { homme: 'Homme', femme: 'Femme', autre: 'Autre / Non déterminé' };
             sexeBox.classList.remove('empty');
             sexeBox.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#10b981;"></i> ${map[data.sexe]} <i class="fa-solid fa-lock lock"></i>`;
-            result.textContent = `Sexe enregistré automatiquement : ${map[data.sexe]}.`;
-            result.style.display = 'block';
-            label.textContent = 'Re-vérifier';
+            result.textContent = `Sexe vérifié et enregistré : ${map[data.sexe]}.`;
+            label.textContent = 'Re-vérifier en direct';
         } else {
-            result.textContent = data.error || 'Détection impossible. Essayez une photo de visage plus nette et bien éclairée.';
-            result.style.display = 'block';
+            result.textContent = data.error || 'Vérification impossible. Réessayez avec un visage bien visible et éclairé.';
             label.textContent = 'Réessayer';
         }
     } catch(e) {
-        result.textContent = 'Service de détection indisponible. Réessayez plus tard.';
-        result.style.display = 'block';
+        result.textContent = 'Service de vérification indisponible. Réessayez plus tard.';
         label.textContent = 'Réessayer';
     }
 
-    btn.disabled = false;
+    result.style.display = 'block';
+    detectBtn.disabled = false;
+    closeCamera();
 }
 
 document.getElementById('cameraBackdrop').addEventListener('click', function(e) {

@@ -228,25 +228,31 @@
                         </li>
                     
                         {{-- ▶ Mes Services — UNIQUEMENT pour les Locaux (profil == 0) --}}
-                        @if($profil == 0)
-                        <li>
-                            <a class="dropdown-item" href="{{ route('services.index') }}">
-                                <i class="fa-solid fa-briefcase"></i> Mes Services
-                                @php $nbServices = \App\Models\Service::where('user_id', $user->id)->count(); @endphp
-                                @if($nbServices > 0)
-                                    <span style="
-                                        margin-left: 6px;
-                                        background: #eff6ff;
-                                        color: #1d4ed8;
-                                        font-size: 0.65rem;
-                                        font-weight: 800;
-                                        padding: 1px 7px;
-                                        border-radius: 100px;
-                                        font-family: 'Nunito', sans-serif;
-                                    ">{{ $nbServices }}</span>
-                                @endif
-                            </a>
-                        </li>
+                        @if($profil == 0 && $isActif)
+                            <li>
+                                <a class="dropdown-item" href="{{ route('services.index') }}">
+                                    <i class="fa-solid fa-briefcase"></i> Mes Services
+
+                                    @php
+                                        $nbServices = \App\Models\Service::where('user_id', $user->id)->count();
+                                    @endphp
+
+                                    @if($nbServices > 0)
+                                        <span style="
+                                            margin-left: 6px;
+                                            background: #eff6ff;
+                                            color: #1d4ed8;
+                                            font-size: 0.65rem;
+                                            font-weight: 800;
+                                            padding: 1px 7px;
+                                            border-radius: 100px;
+                                            font-family: 'Nunito', sans-serif;
+                                        ">
+                                            {{ $nbServices }}
+                                        </span>
+                                    @endif
+                                </a>
+                            </li>
                         @endif
                     
                         <li><hr class="dropdown-divider"></li>

@@ -61,214 +61,189 @@
         <h2><i class="fa-solid fa-hand-peace me-2 text-primary"></i>Services populaires par des locaux</h2>
         <p>Des expériences authentiques proposées par des habitants passionnés</p>
     </div>
-
-    <div class="wc-trips-grid">
-        @php
-        $services = [
-            [
-                'id'          => 1,
-                'title'       => 'Cours de cuisine traditionnelle',
-                'local_name'  => 'Fatima Zahra',
-                'country'     => 'Maroc',
-                'city'        => 'Marrakech',
-                'price'       => 45,
-                'tag'         => 'Gastronomie',
-                'img'         => 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=600&q=80',
-                'description' => 'Préparez un tajine et découvrez les épices locales',
-                'full_description' => 'Plongez au cœur de la cuisine marocaine traditionnelle. Fatima vous accueille dans sa maison familiale pour vous apprendre les secrets du tajine, du couscous et des pâtisseries orientales. Vous visiterez d\'abord le marché local pour sélectionner les épices et les légumes frais, puis passerez 3 heures en cuisine avant de déguster votre repas sur la terrasse avec vue sur les montagnes.',
-                'duration' => '4 heures',
-                'languages' => 'Français, Arabe, Anglais',
-                'includes' => 'Ingrédients, repas, boissons, tablier, recettes écrites',
-                'max_people' => 6
-            ],
-            [
-                'id'          => 2,
-                'title'       => 'Safari photo en 4x4',
-                'local_name'  => 'Joseph Ole',
-                'country'     => 'Kenya',
-                'city'        => 'Nairobi',
-                'price'       => 350,
-                'tag'         => 'Nature',
-                'img'         => 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=600&q=80',
-                'description' => 'Partez observer les Big Five avec un guide Maasai',
-                'full_description' => 'Joseph, guide Maasai né dans la réserve, vous emmène pour une journée de safari photo inoubliable. Avec son œil expert, vous aurez la meilleure chance d\'observer lions, éléphants, buffles, léopards et rhinocéros. Joseph partagera ses connaissances sur la faune, la flore et les traditions Maasai. Déjeuner brousse inclus.',
-                'duration' => 'Journée complète (8-10 heures)',
-                'languages' => 'Anglais, Swahili, Maa',
-                'includes' => 'Transport 4x4, eau, déjeuner, jumelles, guide',
-                'max_people' => 7
-            ],
-            [
-                'id'          => 3,
-                'title'       => 'Excursion en dhoni traditionnel',
-                'local_name'  => 'Ali Shamin',
-                'country'     => 'Maldives',
-                'city'        => 'Malé',
-                'price'       => 120,
-                'tag'         => 'Bateau',
-                'img'         => 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&q=80',
-                'description' => 'Navigation au coucher du soleil et pêche locale',
-                'full_description' => 'Montez à bord du dhoni traditionnel d\'Ali pour une excursion magique au coucher du soleil. Vous apprendrez les techniques de pêche locales et pourrez pêcher votre propre poisson qui sera grillé pour vous sur une île déserte. Baignade en eaux cristallines et observation des dauphins sont également au programme.',
-                'duration' => '3-4 heures',
-                'languages' => 'Anglais, Dhivehi',
-                'includes' => 'Boissons, matériel de pêche, collation, bouteille d\'eau',
-                'max_people' => 10
-            ],
-            [
-                'id'          => 4,
-                'title'       => 'Cérémonie du thé et atelier kimono',
-                'local_name'  => 'Yuki Tanaka',
-                'country'     => 'Japon',
-                'city'        => 'Kyoto',
-                'price'       => 280,
-                'tag'         => 'Culture',
-                'img'         => 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80',
-                'description' => 'Immersion dans la tradition japonaise',
-                'full_description' => 'Yuki, passionnée de culture traditionnelle japonaise, vous invite dans sa maison de thé à Kyoto. Commencez par l\'habillage en kimono authentique (location incluse), puis participez à une cérémonie du thé complète. Vous apprendrez les gestes, l\'histoire et la philosophie du "chanoyu". Repas kaori léger inclus.',
-                'duration' => '2.5 heures',
-                'languages' => 'Japonais, Anglais',
-                'includes' => 'Kimono, cérémonie du thé, pâtisseries traditionnelles, photo souvenir',
-                'max_people' => 4
-            ],
-            [
-                'id'          => 5,
-                'title'       => 'Dégustation dans vignoble familial',
-                'local_name'  => 'Sofia & Matteo',
-                'country'     => 'Italie',
-                'city'        => 'Florence',
-                'price'       => 195,
-                'tag'         => 'Vin & fromages',
-                'img'         => 'https://images.unsplash.com/photo-1534568338506-7f0b9f4b38f0?w=600&q=80',
-                'description' => 'Visite des caves et repas chez l\'habitant',
-                'full_description' => 'La famille de Sofia produit du vin depuis 3 générations en Toscane. Visitez leurs caves historiques, participez à une dégustation de 5 crus accompagnés de fromages et charcuteries locaux, puis partagez un repas traditionnel dans leur ferme. Matteo vous expliquera l\'art de l\'assemblage et les secrets du Chianti.',
-                'duration' => '4 heures',
-                'languages' => 'Italien, Anglais, Français',
-                'includes' => 'Visite des caves, dégustation, repas complet, eau et vin',
-                'max_people' => 12
-            ],
-            [
-                'id'          => 6,
-                'title'       => 'Randonnée glaciaire en petit comité',
-                'local_name'  => 'Cristian Lopez',
-                'country'     => 'Chili',
-                'city'        => 'Punta Arenas',
-                'price'       => 420,
-                'tag'         => 'Aventure',
-                'img'         => 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80',
-                'description' => 'Explorez les glaciers avec un guide de Patagonie',
-                'full_description' => 'Cristian, guide de montagne certifié, vous emmène pour une randonnée exclusive sur le glacier Perito Moreno. Équipement technique fourni (crampons, piolet, baudrier). Vous marcherez sur la glace bleue, découvrirez les crevasses et profiterez d\'une vue imprenable. Petit groupe pour une expérience intime et sécurisée.',
-                'duration' => '6 heures',
-                'languages' => 'Espagnol, Anglais',
-                'includes' => 'Équipement technique complet, bâtons, collation énergétique, eau, photos',
-                'max_people' => 8
-            ],
-        ];
-        @endphp
-
-        @foreach($services as $service)
-        <div class="wc-trip-card">
-            <div class="wc-trip-img-wrap">
-                <img src="{{ $service['img'] }}" alt="{{ $service['title'] }}">
-                <span class="wc-trip-tag">{{ $service['tag'] }}</span>
-                <button class="wc-trip-fav" aria-label="Favoris">
-                    <i class="fa-regular fa-heart"></i>
-                </button>
-            </div>
-            <div class="wc-trip-body">
-                {{-- Local et pays --}}
-                <div class="wc-trip-local">
-                    <i class="fa-solid fa-user-astronaut"></i> {{ $service['local_name'] }}
-                    <span class="wc-trip-country">
-                        <i class="fa-solid fa-location-dot"></i> {{ $service['country'] }}
-                    </span>
-                </div>
-
-                <h3 class="wc-trip-title">{{ $service['title'] }}</h3>
-                <p class="wc-trip-description">{{ $service['description'] }}</p>
-
-                <div class="wc-trip-meta">
-                    <span><i class="fa-regular fa-building"></i> {{ $service['city'] }}</span>
-                </div>
-
-                <div class="wc-trip-footer">
-                    <div class="wc-trip-price">
-                        <span class="wc-from">dès</span>
-                        <strong>{{ $service['price'] }} €</strong>
-                        <span class="wc-per">/pers.</span>
-                    </div>
-                    <button class="wc-btn-details" data-bs-toggle="modal" data-bs-target="#serviceModal{{ $service['id'] }}">
-                        Voir <i class="fa-solid fa-arrow-right ms-1"></i>
+ 
+    @if($services->isEmpty())
+        {{-- État vide --}}
+        <div style="text-align:center; padding: 3rem; background:#f8f9fc; border-radius:16px;">
+            <i class="fa-regular fa-folder-open" style="font-size:2.5rem; color:#d1d5db; display:block; margin-bottom:1rem;"></i>
+            <p style="color:#6b7280; font-family:'Nunito',sans-serif; font-size:0.9375rem; margin:0;">
+                Aucun service disponible pour le moment. Revenez bientôt !
+            </p>
+        </div>
+    @else
+        <div class="wc-trips-grid">
+            @foreach($services as $service)
+            @php
+                $pseudo = $service->user?->displayName() ?? 'Local';
+ 
+                $bonusItems = $service->bonus
+                    ? array_map('trim', explode(',', $service->bonus))
+                    : [];
+            @endphp
+ 
+            {{-- ── Carte service ── --}}
+            <div class="wc-trip-card">
+                <div class="wc-trip-img-wrap">
+                    <img src="{{ $service->coverPhoto() }}" alt="{{ $service->titre }}">
+                    <span class="wc-trip-tag">{{ $service->categorie }}</span>
+                    <button class="wc-trip-fav" aria-label="Favoris">
+                        <i class="fa-regular fa-heart"></i>
                     </button>
                 </div>
-            </div>
-        </div>
-
-        {{-- MODAL pour ce service --}}
-        <div class="modal fade" id="serviceModal{{ $service['id'] }}" tabindex="-1" aria-labelledby="serviceModalLabel{{ $service['id'] }}" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header border-0 pb-0">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+ 
+                <div class="wc-trip-body">
+                    {{-- Local : pseudo UNIQUEMENT --}}
+                    <div class="wc-trip-local">
+                        <i class="fa-solid fa-user-astronaut"></i> {{ $pseudo }}
+                        @if($service->ville || $service->pays)
+                        <span class="wc-trip-country">
+                            <i class="fa-solid fa-location-dot"></i>
+                            {{ implode(', ', array_filter([$service->ville, $service->pays])) }}
+                        </span>
+                        @endif
                     </div>
-                    <div class="modal-body pt-0">
-                        <div class="wc-modal-img">
-                            <img src="{{ $service['img'] }}" alt="{{ $service['title'] }}">
-                            <span class="wc-modal-tag">{{ $service['tag'] }}</span>
-                        </div>
-                        
-                        <div class="wc-modal-header">
-                            <div class="wc-modal-local">
-                                <i class="fa-solid fa-user-astronaut"></i> {{ $service['local_name'] }}
-                                <span><i class="fa-solid fa-location-dot"></i> {{ $service['country'] }}, {{ $service['city'] }}</span>
-                            </div>
-                            <h3 class="wc-modal-title">{{ $service['title'] }}</h3>
-                        </div>
-
-                        <div class="wc-modal-details">
-                            <div class="wc-modal-info-grid">
-                                <div class="wc-modal-info-item">
-                                    <i class="fa-regular fa-clock"></i>
-                                    <span><strong>Durée</strong><br>{{ $service['duration'] }}</span>
-                                </div>
-                                <div class="wc-modal-info-item">
-                                    <i class="fa-solid fa-language"></i>
-                                    <span><strong>Langues</strong><br>{{ $service['languages'] }}</span>
-                                </div>
-                                <div class="wc-modal-info-item">
-                                    <i class="fa-solid fa-users"></i>
-                                    <span><strong>Max. personnes</strong><br>{{ $service['max_people'] }}</span>
-                                </div>
-                                <div class="wc-modal-info-item">
-                                    <i class="fa-solid fa-euro-sign"></i>
-                                    <span><strong>Prix</strong><br>{{ $service['price'] }} € / personne</span>
-                                </div>
-                            </div>
-
-                            <div class="wc-modal-description">
-                                <h4><i class="fa-solid fa-book-open"></i> Description détaillée</h4>
-                                <p>{{ $service['full_description'] }}</p>
-                            </div>
-
-                            <div class="wc-modal-includes">
-                                <h4><i class="fa-solid fa-gift"></i> Ce qui est inclus</h4>
-                                <ul>
-                                    @foreach(explode(', ', $service['includes']) as $item)
-                                        <li><i class="fa-solid fa-check-circle"></i> {{ $item }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
+ 
+                    <h3 class="wc-trip-title">{{ $service->titre }}</h3>
+                    <p class="wc-trip-description">{{ Str::limit($service->description, 100) }}</p>
+ 
+                    <div class="wc-trip-meta">
+                        @if($service->ville)
+                        <span><i class="fa-regular fa-building"></i> {{ $service->ville }}</span>
+                        @endif
                     </div>
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="wc-modal-close" data-bs-dismiss="modal">Fermer</button>
-                        <button type="button" class="wc-modal-book">
-                            <i class="fa-regular fa-calendar-check"></i> Réserver cette expérience
+ 
+                    <div class="wc-trip-footer">
+                        <div class="wc-trip-price">
+                            <span class="wc-from">dès</span>
+                            <strong>{{ number_format($service->tarif, 0, ',', ' ') }} €</strong>
+                            <span class="wc-per">{{ $service->typeTarifLabel() }}</span>
+                        </div>
+                        <button class="wc-btn-details"
+                                data-bs-toggle="modal"
+                                data-bs-target="#svcModal{{ $service->id }}">
+                            Voir <i class="fa-solid fa-arrow-right ms-1"></i>
                         </button>
                     </div>
                 </div>
             </div>
+ 
+            {{-- ── Modal détail ── --}}
+            <div class="modal fade" id="svcModal{{ $service->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header border-0 pb-0">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body pt-0">
+ 
+                            {{-- Galerie photos --}}
+                            @if(!empty($service->photos) && count($service->photos) > 1)
+                            <div id="carousel{{ $service->id }}" class="carousel slide wc-modal-img mb-3" data-bs-ride="carousel">
+                                <div class="carousel-inner" style="border-radius:16px; overflow:hidden;">
+                                    @foreach($service->photos as $i => $photo)
+                                    <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
+                                        <img src="{{ asset('storage/'.$photo) }}" class="d-block w-100"
+                                             style="height:260px; object-fit:cover;" alt="">
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ $service->id }}" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ $service->id }}" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            </div>
+                            @else
+                            <div class="wc-modal-img">
+                                <img src="{{ $service->coverPhoto() }}" alt="{{ $service->titre }}">
+                                <span class="wc-modal-tag">{{ $service->categorie }}</span>
+                            </div>
+                            @endif
+ 
+                            <div class="wc-modal-header">
+                                {{-- SÉCURITÉ : pseudo uniquement, pas d'infos personnelles --}}
+                                <div class="wc-modal-local">
+                                    <i class="fa-solid fa-user-astronaut"></i> {{ $pseudo }}
+                                    @if($service->ville || $service->pays)
+                                    <span>
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        {{ implode(', ', array_filter([$service->ville, $service->pays])) }}
+                                    </span>
+                                    @endif
+                                </div>
+                                <h3 class="wc-modal-title">{{ $service->titre }}</h3>
+                            </div>
+ 
+                            <div class="wc-modal-details">
+                                <div class="wc-modal-info-grid">
+                                    @if($service->duree)
+                                    <div class="wc-modal-info-item">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span><strong>Durée</strong><br>{{ $service->duree }}</span>
+                                    </div>
+                                    @endif
+                                    @if($service->langues)
+                                    <div class="wc-modal-info-item">
+                                        <i class="fa-solid fa-language"></i>
+                                        <span><strong>Langues</strong><br>{{ $service->langues }}</span>
+                                    </div>
+                                    @endif
+                                    @if($service->max_personnes)
+                                    <div class="wc-modal-info-item">
+                                        <i class="fa-solid fa-users"></i>
+                                        <span><strong>Max. personnes</strong><br>{{ $service->max_personnes }}</span>
+                                    </div>
+                                    @endif
+                                    <div class="wc-modal-info-item">
+                                        <i class="fa-solid fa-euro-sign"></i>
+                                        <span>
+                                            <strong>Prix</strong><br>
+                                            {{ number_format($service->tarif, 2, ',', ' ') }} € {{ $service->typeTarifLabel() }}
+                                        </span>
+                                    </div>
+                                </div>
+ 
+                                <div class="wc-modal-description">
+                                    <h4><i class="fa-solid fa-book-open"></i> Description détaillée</h4>
+                                    <p>{{ $service->description }}</p>
+                                </div>
+ 
+                                @if(!empty($bonusItems))
+                                <div class="wc-modal-includes">
+                                    <h4><i class="fa-solid fa-gift"></i> Ce qui est inclus</h4>
+                                    <ul>
+                                        @foreach($bonusItems as $item)
+                                        <li><i class="fa-solid fa-check-circle"></i> {{ $item }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+ 
+                        <div class="modal-footer border-0 pt-0">
+                            <button type="button" class="wc-modal-close" data-bs-dismiss="modal">Fermer</button>
+                            @auth
+                                <button type="button" class="wc-modal-book">
+                                    <i class="fa-regular fa-calendar-check"></i> Réserver cette expérience
+                                </button>
+                            @else
+                                <button type="button" class="wc-modal-book"
+                                        data-bs-dismiss="modal"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
+                                    <i class="fa-regular fa-user"></i> Se connecter pour réserver
+                                </button>
+                            @endauth
+                        </div>
+                    </div>
+                </div>
+            </div>
+ 
+            @endforeach
         </div>
-        @endforeach
-    </div>
+    @endif
 </section>
 {{-- ══════════════════════════════════════
      COMMENT ÇA MARCHE

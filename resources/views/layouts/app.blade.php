@@ -162,7 +162,7 @@
 
         {{-- Navigation menu --}}
         <ul class="nav-menu">
-            <li><a href="#" onclick="showPage('accueil')">Accueil</a></li>
+            <li><a href="{{ url('/') }}">Accueil</a></li>
             <li><a href="#" onclick="showPage('locaux')">Nos Locaux</a></li>
             <li><a href="#" onclick="showPage('services')">Services</a></li>
         </ul>
@@ -195,13 +195,14 @@
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-custom dropdown-menu-end">
+ 
                         {{-- Mail --}}
                         <li>
                             <span class="dropdown-item-text text-muted small px-3">
                                 {{ $user->mail }}
                             </span>
                         </li>
-
+                    
                         {{-- Status pill --}}
                         <li>
                             <span class="status-pill {{ $user->status }}">
@@ -209,35 +210,69 @@
                                 {{ $isActif ? 'Profil complet' : 'Profil incomplet' }}
                             </span>
                         </li>
-
+                    
                         <li><hr class="dropdown-divider"></li>
-
+                    
+                        {{-- Mon profil --}}
                         <li>
                             <a class="dropdown-item" href="{{ route('profile.show') }}">
                                 <i class="fa-regular fa-id-card"></i> Mon profil
                             </a>
                         </li>
+                    
+                        {{-- Mes réservations --}}
                         <li>
                             <a class="dropdown-item" href="#" onclick="showPage('reservations')">
                                 <i class="fa-regular fa-calendar-check"></i> Mes réservations
                             </a>
                         </li>
+                    
+                        {{-- ▶ Mes Services — UNIQUEMENT pour les Locaux (profil == 0) --}}
+                        @if($profil == 0 && $isActif)
+                            <li>
+                                <a class="dropdown-item" href="{{ route('services.index') }}">
+                                    <i class="fa-solid fa-briefcase"></i> Mes Services
 
+                                    @php
+                                        $nbServices = \App\Models\Service::where('user_id', $user->id)->count();
+                                    @endphp
+
+                                    @if($nbServices > 0)
+                                        <span style="
+                                            margin-left: 6px;
+                                            background: #eff6ff;
+                                            color: #1d4ed8;
+                                            font-size: 0.65rem;
+                                            font-weight: 800;
+                                            padding: 1px 7px;
+                                            border-radius: 100px;
+                                            font-family: 'Nunito', sans-serif;
+                                        ">
+                                            {{ $nbServices }}
+                                        </span>
+                                    @endif
+                                </a>
+                            </li>
+                        @endif
+                    
                         <li><hr class="dropdown-divider"></li>
-
+                    
+                        {{-- Changer de mode --}}
                         <li>
                             <a class="dropdown-item" href="#" onclick="switchProfil()">
                                 <i class="fa-solid {{ $autreIcon }}"></i> Passer en mode {{ $autreLabel }}
                             </a>
                         </li>
-
+                    
                         <li><hr class="dropdown-divider"></li>
-
+                    
+                        {{-- Déconnexion --}}
                         <li>
                             <a class="dropdown-item text-danger" href="#" onclick="deconnexion()">
                                 <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion
                             </a>
                         </li>
+                    
                     </ul>
                 </div>
 

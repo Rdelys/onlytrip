@@ -150,7 +150,7 @@
 /* Photo */
 .sv-card-img { 
     position: relative; 
-    overflow: hidden;
+    overflow: visible;
 }
 .sv-card-img img { 
     width: 100%; 
@@ -164,22 +164,27 @@
 }
 .sv-card-cat {
     position: absolute;
-    bottom: -10px; 
+    bottom: -12px; 
     left: 14px;
     background: #3b82f6; 
     color: #fff;
     font-size: 0.6rem; 
     font-weight: 700;
-    padding: 3px 12px; 
+    padding: 4px 14px; 
     border-radius: 100px;
     letter-spacing: 0.05em;
     font-family: 'Nunito', sans-serif;
     box-shadow: 0 2px 8px rgba(59,130,246,0.25);
+    z-index: 3;
+    white-space: nowrap;
+    max-width: calc(100% - 28px);
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Body */
 .sv-card-body { 
-    padding: 1rem 1.125rem 0.875rem; 
+    padding: 1.25rem 1.125rem 0.875rem; 
     flex: 1; 
 }
 .sv-card-title {

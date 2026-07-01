@@ -308,6 +308,7 @@
     margin-left: auto;
     margin-right: auto;
 }
+
 /* ── BOUTON MODERNISÉ ── */
 .sv-btn-primary {
     display: inline-flex;
@@ -358,14 +359,7 @@
 .sv-btn-primary:hover i {
     transform: rotate(90deg) scale(1.1);
 }
-.sv-btn-primary svg {
-    width: 18px;
-    height: 18px;
-    transition: transform 0.3s ease;
-}
-.sv-btn-primary:hover svg {
-    transform: rotate(90deg) scale(1.1);
-}
+
 /* Version petite */
 .sv-btn-primary-sm {
     padding: 8px 18px;
@@ -376,22 +370,56 @@
     font-size: 0.85rem;
 }
 
-/* ── MODAL ── */
+/* ── MODAL CORRIGÉ ── */
+.modal-dialog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100% - 1rem);
+    margin: 0.5rem auto;
+}
+
+.modal {
+    text-align: left;
+}
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+}
+
 .sv-modal-content {
     border-radius: 20px;
     border: none;
     box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-    max-height: 95vh;
+    max-height: 90vh;
+    margin: 0 auto;
+    width: 100%;
 }
-.modal-dialog {
-    margin: 0.5rem;
+
+.modal-header {
+    padding: 1.25rem 1.5rem 0.5rem;
 }
+
+.modal-body {
+    padding: 1rem 1.5rem;
+    max-height: calc(90vh - 180px);
+    overflow-y: auto;
+}
+
+.modal-footer {
+    padding: 0.75rem 1.5rem 1.25rem;
+}
+
 .sv-modal-title {
     font-family: 'Nunito', sans-serif;
     font-size: clamp(1rem, 2vw, 1.125rem);
     font-weight: 800;
     color: #0a0a0f;
 }
+
+/* ── FORMULAIRE ── */
 .sv-form-label {
     font-family: 'Nunito', sans-serif;
     font-size: clamp(0.75rem, 1.2vw, 0.8125rem);
@@ -588,6 +616,22 @@ select.sv-form-control {
     background: #e5e7eb; 
 }
 
+/* Scrollbar personnalisée pour le modal */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+.modal-body::-webkit-scrollbar-thumb {
+    background: #c1c7cd;
+    border-radius: 10px;
+}
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a0a7ae;
+}
+
 /* ── RESPONSIVE ── */
 /* Tablettes et petits écrans */
 @media (max-width: 992px) {
@@ -662,11 +706,28 @@ select.sv-form-control {
     .sv-btn-sm i {
         font-size: 0.7rem;
     }
+    
+    /* Modal responsive */
     .modal-dialog {
         margin: 0.25rem;
+        min-height: calc(100% - 0.5rem);
+    }
+    .modal-dialog-centered {
+        min-height: calc(100% - 0.5rem);
     }
     .sv-modal-content {
         border-radius: 14px;
+        max-height: 95vh;
+    }
+    .modal-body {
+        padding: 0.75rem 1rem;
+        max-height: calc(95vh - 160px);
+    }
+    .modal-header {
+        padding: 1rem 1rem 0.25rem;
+    }
+    .modal-footer {
+        padding: 0.5rem 1rem 1rem;
     }
     .sv-tarif-group { 
         flex-direction: column; 
@@ -773,6 +834,15 @@ select.sv-form-control {
         height: 16px;
         font-size: 7px;
     }
+    
+    /* Modal très petit */
+    .modal-body {
+        padding: 0.5rem 0.75rem;
+        max-height: calc(95vh - 140px);
+    }
+    .sv-modal-content {
+        border-radius: 12px;
+    }
 }
 
 /* ── ANIMATIONS ── */
@@ -878,7 +948,8 @@ select.sv-form-control {
             <i class="fa-regular fa-folder-open"></i>
             <h3>Aucun service pour le moment</h3>
             <p>Ajoutez votre premier service pour le faire apparaître sur l'accueil.</p>
-            <button class="sv-btn-primary sv-btn-primary-sm" data-bs-toggle="modal" data-bs-target="#addServiceModal">Créer mon premier service
+            <button class="sv-btn-primary sv-btn-primary-sm" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                Créer mon premier service
             </button>
         </div>
     @else

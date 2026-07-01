@@ -6,9 +6,16 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\ServiceController;
 
 Route::get('/', function () {
-    return view('welcome');
+    $services = \App\Models\Service::with('user')   // charge le local
+        ->where('disponible', true)
+        ->latest()
+        ->take(6)
+        ->get();
+ 
+    return view('welcome', compact('services'));
 });
 
 //loginmail
@@ -34,3 +41,12 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
+
+// ── Routes services (réservé aux locaux connectés) ────────────────────────────
+Route::middleware('auth')->group(function () {
+    Route::get('/mes-services',                     [ServiceController::class, 'index'])  ->name('services.index');
+    Route::post('/mes-services',                    [ServiceController::class, 'store'])  ->name('services.store');
+    Route::put('/mes-services/{id}',                [ServiceController::class, 'update']) ->name('services.update');
+    Route::delete('/mes-services/{id}',             [ServiceController::class, 'destroy'])->name('services.destroy');
+    Route::patch('/mes-services/{id}/toggle',       [ServiceController::class, 'toggle']) ->name('services.toggle');
+});

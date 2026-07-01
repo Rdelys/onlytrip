@@ -162,7 +162,7 @@
 
         {{-- Navigation menu --}}
         <ul class="nav-menu">
-            <li><a href="#" onclick="showPage('accueil')">Accueil</a></li>
+            <li><a href="{{ url('/') }}">Accueil</a></li>
             <li><a href="#" onclick="showPage('locaux')">Nos Locaux</a></li>
             <li><a href="#" onclick="showPage('services')">Services</a></li>
         </ul>

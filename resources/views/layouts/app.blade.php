@@ -137,6 +137,32 @@
         .status-pill.actif   { background: #d1fae5; color: #065f46; }
         .status-pill.inactif { background: #fee2e2; color: #991b1b; }
 
+        /* Style pour l'élément Mes Services désactivé */
+        .dropdown-item.disabled-link {
+            color: #9ca3af !important; /* Gris */
+            pointer-events: none; /* Empêche le clic */
+            cursor: default;
+            opacity: 0.6;
+        }
+        .dropdown-item.disabled-link i {
+            color: #9ca3af !important; /* Gris pour l'icône aussi */
+        }
+        .dropdown-item.disabled-link .service-count-badge {
+            background: #e5e7eb !important;
+            color: #6b7280 !important;
+        }
+
+        .service-count-badge {
+            margin-left: 6px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 1px 7px;
+            border-radius: 100px;
+            font-family: 'Nunito', sans-serif;
+        }
+
         @media (max-width: 992px) {
             .nav-menu { gap: 1rem; }
             .nav-menu li a { font-size: 0.8125rem; }
@@ -228,31 +254,36 @@
                         </li>
                     
                         {{-- ▶ Mes Services — UNIQUEMENT pour les Locaux (profil == 0) --}}
-                        @if($profil == 0 && $isActif)
-                            <li>
-                                <a class="dropdown-item" href="{{ route('services.index') }}">
-                                    <i class="fa-solid fa-briefcase"></i> Mes Services
+                        @if($profil == 0)
+                            @php
+                                $nbServices = \App\Models\Service::where('user_id', $user->id)->count();
+                            @endphp
 
-                                    @php
-                                        $nbServices = \App\Models\Service::where('user_id', $user->id)->count();
-                                    @endphp
-
-                                    @if($nbServices > 0)
-                                        <span style="
-                                            margin-left: 6px;
-                                            background: #eff6ff;
-                                            color: #1d4ed8;
-                                            font-size: 0.65rem;
-                                            font-weight: 800;
-                                            padding: 1px 7px;
-                                            border-radius: 100px;
-                                            font-family: 'Nunito', sans-serif;
-                                        ">
-                                            {{ $nbServices }}
-                                        </span>
-                                    @endif
-                                </a>
-                            </li>
+                            @if($isActif)
+                                {{-- Compte actif : lien cliquable --}}
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('services.index') }}">
+                                        <i class="fa-solid fa-briefcase"></i> Mes Services
+                                        @if($nbServices > 0)
+                                            <span class="service-count-badge">
+                                                {{ $nbServices }}
+                                            </span>
+                                        @endif
+                                    </a>
+                                </li>
+                            @else
+                                {{-- Compte inactif : afficher en grisé, non cliquable, avec "(indisponible)" --}}
+                                <li>
+                                    <span class="dropdown-item disabled-link">
+                                        <i class="fa-solid fa-briefcase"></i> Mes Services (indisponible)
+                                        @if($nbServices > 0)
+                                            <span class="service-count-badge">
+                                                {{ $nbServices }}
+                                            </span>
+                                        @endif
+                                    </span>
+                                </li>
+                            @endif
                         @endif
                     
                         <li><hr class="dropdown-divider"></li>
